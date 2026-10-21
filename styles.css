@@ -1,0 +1,6 @@
+/* stock-lstm-forecaster specifics */
+.sel{border:1px solid var(--border);border-radius:10px;padding:9px 12px;font:inherit;font-size:14px;background:var(--bg);color:var(--ink);width:100%}
+.sel:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-ring)}
+.prog{height:10px;border-radius:999px;background:var(--bg-soft);overflow:hidden}
+.prog-fill{height:100%;border-radius:999px;background:var(--accent);transition:width .3s}
+.row-win{background:var(--ok-soft)}

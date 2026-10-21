@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stock LSTM Forecaster — Deep Learning vs the Naive Baseline</title>
+<meta name="description" content="Train a real LSTM on price series in your browser and see whether it actually beats a naive baseline on a holdout. Honest metrics, free, private.">
+<meta name="theme-color" content="#ffffff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="kit.css"><link rel="stylesheet" href="accent.css"><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-head"><div class="wrap">
+<a class="brand" href="#top"><span class="mark"><svg viewBox="0 0 512 512" fill="none"><path d="M100 340l70-80 60 44 76-104 50 40 56-70" stroke="#fff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/><path d="M100 400h312" stroke="#fff" stroke-width="24" stroke-linecap="round" opacity=".8"/></svg></span><span>Stock LSTM Forecaster<small>Deep learning vs reality</small></span></a>
+<nav class="head-nav">
+<a href="#input">Data</a><a href="#results">Backtest</a>
+<button class="icon-btn keep hidden" id="pwa-install" onclick="pkInstall()" title="Install app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg></button>
+<button class="icon-btn" onclick="pkToggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">
+<svg class="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+<svg class="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button></nav>
+</div></header>
+<main id="top">
+<section class="hero"><div class="wrap">
+<span class="eyebrow">TensorFlow.js · Trains in your browser · Honest backtest</span>
+<h1>Does the LSTM actually beat the naive guess?</h1>
+<p class="sub">Train a real LSTM on a price series — then watch it compete against a naive drift baseline on data it has never seen. Sometimes it wins. Sometimes it doesn't. That's the honest truth about stock prediction, and this app shows it instead of hiding it.</p>
+<div class="cta-row"><a class="btn btn-pri" href="#input">Run a backtest</a></div>
+</div></section>
+
+<section class="section" id="input"><div class="wrap">
+<div class="sec-head"><h2>Pick a series</h2><p>Demo stocks are synthetic (seeded, reproducible). Or paste your own closing prices, oldest first.</p></div>
+<div class="grid grid-2">
+<div class="card">
+<label class="f-label" for="demo">Demo series</label>
+<select id="demo" class="sel"><option value="steady">"ACME" — steady climber</option><option value="volatile">"VOLTA" — wild rides</option><option value="falling">"DRIFT" — slow bleed</option></select>
+<button class="btn btn-pri" id="run" style="width:100%;margin-top:16px">Train & backtest</button>
+<div class="card hidden" id="prog-wrap" style="margin-top:14px;box-shadow:none;border-style:dashed">
+<div class="prog"><div class="prog-fill" id="prog-bar" style="width:2%"></div></div>
+<p class="hint" id="prog-msg" style="margin-top:8px">Starting…</p>
+</div>
+</div>
+<div class="card">
+<label class="f-label" for="paste">Or paste closing prices (60+)</label>
+<textarea id="paste" style="min-height:120px" placeholder="100.5, 101.2, 99.8, 102.4, …" spellcheck="false"></textarea>
+<div class="note" style="margin-top:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+<span><strong>Not financial advice.</strong> Markets are close to a random walk; a backtest win on one series proves nothing about the future. This is a learning tool that shows you the real numbers — never trade on it.</span></div>
+</div>
+</div>
+</div></section>
+
+<section class="section hidden" id="results"><div class="wrap">
+<div class="sec-head"><h2>Backtest & forecast</h2><p id="bt-note"></p></div>
+<div class="card"><canvas id="chart" style="width:100%;height:210px"></canvas></div>
+<div class="grid grid-2" style="margin-top:16px">
+<div class="card">
+<h3 style="margin-top:0">Holdout accuracy (price units)</h3>
+<div class="tbl-wrap"><table class="tbl"><thead><tr><th>Model</th><th>MAE</th><th>RMSE</th></tr></thead><tbody id="metric-tbl"></tbody></table></div>
+</div>
+<div class="card">
+<h3 style="margin-top:0">Next 10 steps (LSTM)</h3>
+<div class="tbl-wrap" style="max-height:300px;overflow:auto"><table class="tbl"><thead><tr><th>Step</th><th>Forecast</th><th>Change</th></tr></thead><tbody id="fc-tbl"></tbody></table></div>
+</div>
+</div>
+</div></section>
+
+<section class="section"><div class="wrap">
+<div class="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+<span><strong>Honest limits:</strong> a 16-unit LSTM on log-returns is a teaching model, not a trading system. Prices alone carry almost no predictive signal; the naive baseline wins often, and this app shows you when it does. No volumes, no news, no fundamentals. Nothing here is financial advice.</span></div>
+</div></section>
+</main>
+<footer class="site-foot"><div class="wrap cols">
+<div><div class="fbrand">Stock LSTM Forecaster</div>
+<p style="margin-top:8px;max-width:52ch">A real LSTM trained in your browser, judged against a naive baseline. Free, private, no sign-up.</p>
+<p style="margin-top:10px">Runs 100% free. <span class="mono">No sign-up. No card.</span></p></div>
+<div style="text-align:right"><p>Built by <a href="https://github.com/AKASH991833" target="_blank" rel="noopener">Akash Vishwakarma</a></p>
+<p style="margin-top:6px"><a href="https://github.com/AKASH991833/stock-lstm-forecaster" target="_blank" rel="noopener">Source on GitHub</a></p></div>
+</div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.20.0/dist/tf.min.js"></script>
+<script src="kit.js"></script>
+<script src="lstm-engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
