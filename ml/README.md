@@ -1,5 +1,8 @@
 # ML pipeline (Python)
 
+> Part of **[stock-lstm-forecaster](https://github.com/AKASH991833/stock-lstm-forecaster)** — live browser demo: https://akash991833.github.io/stock-lstm-forecaster/ · screenshots in the repo-root `screenshots/` folder.
+
+
 Trains the LSTM offline on your own price CSV and exports a TF.js model for
 the live browser demo.
 
