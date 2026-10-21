@@ -40,3 +40,9 @@ python3 -m http.server 8000
 ```
 
 Built by [Akash Vishwakarma](https://github.com/AKASH991833). Free to use — no sign-up, no card.
+
+
+## Stacks
+
+- **Live demo (this repo root):** HTML/CSS/JS + TensorFlow.js — LSTM trained live in your browser on your pasted series.
+- **Python pipeline (`ml/`):** TensorFlow/Keras stacked-LSTM training on your own CSV with honest naive-baseline backtest and TF.js export. See `ml/README.md`.
